@@ -39,14 +39,14 @@ pipeline {
             }
         }
 
-        stage('Show Outputs') {
-            steps {
-                dir('terraform') {
-                    echo "🔎 Fetching Terraform Outputs..."
-                    sh 'terraform output'
-                }
-            }
-        }
+        // stage('Show Outputs') {
+        //     steps {
+        //         dir('terraform') {
+        //             echo "🔎 Fetching Terraform Outputs..."
+        //             sh 'terraform output'
+        //         }
+        //     }
+        // }
 
         // // stage('Destroy Infrastructure') {
         // //     steps {
