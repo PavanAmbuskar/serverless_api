@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = "us-east-1"
+        LAMBDA_BUCKET = "serverless-api-lambda-artifacts"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/your-repo/serverless-api.git'
+            }
+        }
+
+        stage('Package Lambda') {
+            steps {
+                sh 'zip -r lambda_function.zip handler.py'
+                sh 'aws s3 cp lambda_function.zip s3://$LAMBDA_BUCKET/'
+            }
+        }
+
+        stage('Terraform Init & Apply') {
+            steps {
+                sh 'terraform init'
+                sh 'terraform apply -auto-approve'
+            }
+        }
+    }
+}
