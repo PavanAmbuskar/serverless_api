@@ -31,6 +31,7 @@ stage('Package Lambda') {
                  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                  dir('terraform') {
                 sh 'terraform init'
+                sh 'terraform validate'
                 sh 'terraform apply -auto-approve'
                  }
                }
