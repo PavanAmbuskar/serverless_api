@@ -7,11 +7,13 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/your-repo/serverless-api.git'
-            }
-        }
+stage('Checkout') {
+    steps {
+        git branch: 'main',
+            url: 'https://github.com/PavanAmbuskar/serverless_api.git',
+            credentialsId: 'github-creds'
+    }
+}
 
         stage('Package Lambda') {
             steps {
