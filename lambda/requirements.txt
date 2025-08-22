@@ -1,0 +1,1 @@
+Lambda includes boto3/botocore by default; keep this empty unless you add libs.
