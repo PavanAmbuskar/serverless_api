@@ -33,6 +33,7 @@ pipeline {
                     dir('terraform') {
                         sh 'terraform init'
                         sh 'terraform apply -auto-approve'
+                        sh 'terraform destroy -auto-approve'
                     }
                 }
             }
@@ -47,13 +48,13 @@ pipeline {
             }
         }
 
-        stage('Destroy Infrastructure') {
-            steps {
-                input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
-                dir('terraform') {
-                    sh 'terraform destroy -auto-approve'
-                }
-            }
-        }
+        // // stage('Destroy Infrastructure') {
+        // //     steps {
+        // //         input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
+        // //         dir('terraform') {
+        // //             sh 'terraform destroy -auto-approve'
+        // //         }
+        //     }
+        // }
     }
 }
