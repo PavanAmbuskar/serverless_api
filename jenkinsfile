@@ -15,13 +15,11 @@ stage('Checkout') {
     }
 }
 
-        stage('Package Lambda') {
-            steps {
-                sh 'zip -r lambda_function.zip handler.py'
-                sh 'aws s3 cp lambda_function.zip s3://$LAMBDA_BUCKET/'
-            }
-        }
-
+stage('Package Lambda') {
+    steps {
+        bat '7z a lambda_function.zip handler.py'
+    }
+}
         stage('Terraform Init & Apply') {
             steps {
                 sh 'terraform init'
