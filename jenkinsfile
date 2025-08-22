@@ -1,7 +1,8 @@
 pipeline {
     agent any
-     triggers {
-        githubPush()  // Webhook trigger
+
+    triggers {
+        githubPush() // Webhook trigger
     }
 
     environment {
@@ -10,35 +11,39 @@ pipeline {
     }
 
     stages {
-stage('Checkout') {
-    steps {
-        git branch: 'main',
-            url: 'https://github.com/PavanAmbuskar/serverless_api.git',
-            credentialsId: 'github-creds'
-    }
-}
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/PavanAmbuskar/serverless_api.git',
+                    credentialsId: 'github-creds'
+            }
+        }
 
-stage('Package Lambda') {
-    steps {
- powershell '''
+        stage('Package Lambda') {
+            steps {
+                powershell '''
                     if (Test-Path lambda_function.zip) { Remove-Item lambda_function.zip }
                     Compress-Archive -Path lambda/handler.py -DestinationPath lambda_function.zip -Force
                 '''
-                }
-}
+            }
+        }
+
         stage('Terraform Init & Apply') {
             steps {
-                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-                 dir('terraform') {
-                sh 'terraform init'
-                sh 'terraform apply -auto-approve'
-                 }
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    dir('terraform') {
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
 
-         stage('Destroy Infrastructure') {
+        stage('Destroy Infrastructure') {
             steps {
                 input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
                 sh 'terraform destroy -auto-approve'
-             }
+            }
         }
     }
 }
