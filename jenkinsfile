@@ -17,8 +17,10 @@ stage('Checkout') {
 
 stage('Package Lambda') {
     steps {
-        bat '7z a lambda_function.zip handler.py'
-    }
+  powershell '''
+            if (Test-Path lambda_function.zip) { Remove-Item lambda_function.zip }
+            Compress-Archive -Path handler.py -DestinationPath lambda_function.zip
+        '''    }
 }
         stage('Terraform Init & Apply') {
             steps {
