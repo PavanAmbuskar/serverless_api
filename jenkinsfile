@@ -40,9 +40,15 @@ pipeline {
         }
 
         stage('Destroy Infrastructure') {
+            when {
+                expression {
+                    input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
+                }
+            }
             steps {
-                input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
-                sh 'terraform destroy -auto-approve'
+                dir('terraform') {
+                    sh 'terraform destroy -auto-approve'
+                }
             }
         }
     }
