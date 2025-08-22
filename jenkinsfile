@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     parameters {
         choice(
             name: 'ACTION',
@@ -11,9 +12,9 @@ pipeline {
     environment {
         AWS_DEFAULT_REGION = "us-east-1"
         LAMBDA_BUCKET      = "serverless-api-lambda-artifacts"
-        TF_BACKEND_BUCKET  = "my-terraform-state-bucket" // S3 bucket for remote state
+        TF_BACKEND_BUCKET  = "my-terraform-state-bucket"   // S3 bucket for remote state
         TF_BACKEND_KEY     = "serverless-api/terraform.tfstate"
-        TF_BACKEND_TABLE   = "terraform-locks"          // DynamoDB table for locking
+        TF_BACKEND_TABLE   = "terraform-locks"            // DynamoDB table for state locking
     }
 
     stages {
@@ -27,9 +28,9 @@ pipeline {
 
         stage('Package Lambda') {
             steps {
-                powershell '''
-                    if (Test-Path lambda_function.zip) { Remove-Item lambda_function.zip }
-                    Compress-Archive -Path lambda/handler.py -DestinationPath lambda_function.zip -Force
+                sh '''
+                rm -f lambda_function.zip
+                zip -j lambda_function.zip lambda/handler.py
                 '''
             }
         }
@@ -38,13 +39,13 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                     dir('terraform') {
-                        sh """
-                        terraform init -backend-config="bucket=${TF_BACKEND_BUCKET}" \
-                                       -backend-config="key=${TF_BACKEND_KEY}" \
-                                       -backend-config="region=${AWS_DEFAULT_REGION}" \
-                                       -backend-config="dynamodb_table=${TF_BACKEND_TABLE}" \
-                                       -input=false
-                        """
+                        sh '''
+                        terraform init -input=false \
+                            -backend-config="bucket=${TF_BACKEND_BUCKET}" \
+                            -backend-config="key=${TF_BACKEND_KEY}" \
+                            -backend-config="region=${AWS_DEFAULT_REGION}" \
+                            -backend-config="dynamodb_table=${TF_BACKEND_TABLE}"
+                        '''
                     }
                 }
             }
