@@ -1,13 +1,12 @@
 pipeline {
     agent any
-
     triggers {
-        githubPush() // Webhook trigger
+        githubPush()  // Webhook trigger
     }
 
     environment {
         AWS_DEFAULT_REGION = "us-east-1"
-        LAMBDA_BUCKET = "serverless-api-lambda-artifacts"
+        LAMBDA_BUCKET      = "serverless-api-lambda-artifacts"
     }
 
     stages {
@@ -39,13 +38,18 @@ pipeline {
             }
         }
 
-        stage('Destroy Infrastructure') {
-            when {
-                expression {
-                    input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
+        stage('Show Outputs') {
+            steps {
+                dir('terraform') {
+                    echo "🔎 Fetching Terraform Outputs..."
+                    sh 'terraform output'
                 }
             }
+        }
+
+        stage('Destroy Infrastructure') {
             steps {
+                input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
                 dir('terraform') {
                     sh 'terraform destroy -auto-approve'
                 }
