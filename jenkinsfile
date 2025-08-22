@@ -33,8 +33,12 @@ stage('Package Lambda') {
                 sh 'terraform init'
                 sh 'terraform apply -auto-approve'
                  }
-               }
-            }
+
+         stage('Destroy Infrastructure') {
+            steps {
+                input message: "⚠️ Do you really want to destroy all infra?", ok: "Destroy"
+                sh 'terraform destroy -auto-approve'
+             }
         }
     }
 }
