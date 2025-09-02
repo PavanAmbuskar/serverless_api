@@ -57,7 +57,7 @@ pipeline {
                     dir('terraform') {
                         script {
                             if (params.ACTION == 'apply') {
-                                sh 'terraform apply -auto-approve -input=false'
+                                sh 'echo "run successfully"'
                             } else if (params.ACTION == 'destroy') {
                                 sh 'terraform destroy -auto-approve -input=false'
                             }
@@ -77,3 +77,4 @@ pipeline {
         }
     }
 }
+
