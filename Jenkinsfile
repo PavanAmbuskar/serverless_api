@@ -10,11 +10,10 @@ pipeline {
     }
 
     environment {
-        AWS_DEFAULT_REGION = "us-east-1"
         LAMBDA_BUCKET      = "serverless-api-lambda-artifacts"
-        TF_BACKEND_BUCKET  = "my-terraform-state-bucket"   // S3 bucket for remote state
+        TF_BACKEND_BUCKET  = "my-terraform-state-bucket"
         TF_BACKEND_KEY     = "serverless-api/terraform.tfstate"
-        TF_BACKEND_TABLE   = "terraform-locks"            // DynamoDB table for state locking
+        TF_BACKEND_TABLE   = "terraform-locks"
     }
 
     stages {
@@ -39,13 +38,27 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                     dir('terraform') {
-                        sh '''
-                              terraform init -reconfigure -input=false \
-                            -backend-config="bucket=${TF_BACKEND_BUCKET}" \
-                            -backend-config="key=${TF_BACKEND_KEY}" \
-                            -backend-config="region=${AWS_DEFAULT_REGION}" \
-                            -backend-config="dynamodb_table=${TF_BACKEND_TABLE}"
-                        '''
+                        script {
+                            // 🔍 Get region of the bucket dynamically
+                            def bucketRegion = sh(
+                                script: "aws s3api get-bucket-location --bucket ${TF_BACKEND_BUCKET} --query 'LocationConstraint' --output text",
+                                returnStdout: true
+                            ).trim()
+
+                            if (bucketRegion == "None") {
+                                bucketRegion = "us-east-1" // AWS returns None for us-east-1
+                            }
+
+                            echo "Detected S3 bucket region: ${bucketRegion}"
+
+                            sh """
+                            terraform init -reconfigure -input=false \
+                                -backend-config="bucket=${TF_BACKEND_BUCKET}" \
+                                -backend-config="key=${TF_BACKEND_KEY}" \
+                                -backend-config="region=${bucketRegion}" \
+                                -backend-config="dynamodb_table=${TF_BACKEND_TABLE}"
+                            """
+                        }
                     }
                 }
             }
@@ -57,7 +70,7 @@ pipeline {
                     dir('terraform') {
                         script {
                             if (params.ACTION == 'apply') {
-                               sh 'terraform plan -input=false -out=tfplan'
+                                sh 'terraform plan -input=false -out=tfplan'
                             } else if (params.ACTION == 'destroy') {
                                 sh 'terraform destroy -auto-approve -input=false'
                             }
@@ -77,5 +90,3 @@ pipeline {
         }
     }
 }
-
-
