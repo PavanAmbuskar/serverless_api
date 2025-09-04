@@ -1,93 +1,93 @@
-﻿# serverless_api
+ 🚀 Serverless REST API with Monitoring & CI/CD
+This project implements a **serverless REST API** using **AWS Lambda, API Gateway, and DynamoDB**, with full **Infrastructure as Code (IaC)** via **Terraform**.  
+It also integrates **CloudWatch monitoring with SNS alerts**, a **Jenkins CI/CD pipeline**, and a **Grafana dashboard** for observability.  
 
-🚀 Serverless REST API with Monitoring
-This project provisions a serverless REST API on AWS using API Gateway, Lambda, and DynamoDB, with monitoring, alerting, and CI/CD automation.
 📌 Features
-•	Serverless API using AWS API Gateway + Lambda (Python).
-•	DynamoDB as backend storage.
-•	Terraform for Infrastructure as Code (IaC).
-•	CI/CD pipeline with Jenkins (build, package, deploy Lambda).
-•	CloudWatch for logs, metrics, and alarms.
-•	SNS Notifications when error rate exceeds threshold.
-•	Grafana Dashboard to visualize API request metrics.
-________________________________________
+- **AWS Lambda (Python 3.11)** – Handles business logic.
+- **API Gateway** – Provides RESTful endpoints for interaction.
+- **DynamoDB** – Stores items in a NoSQL table.
+- **Terraform** – Provisions and manages all AWS infrastructure.
+- **CloudWatch & SNS** – Monitors Lambda errors and sends alerts.
+- **Jenkins CI/CD** – Automates packaging and deployment of Lambda.
+- **Grafana Dashboard** – Visualizes API metrics in real-time.
+
 🏗️ Architecture
-1.	API Gateway → Routes API requests to Lambda.
-2.	Lambda Function → Processes requests and interacts with DynamoDB.
-3.	DynamoDB → Stores persistent data.
-4.	CloudWatch → Collects logs & triggers alarms.
-5.	SNS → Sends email alerts.
-6.	Grafana → Visualizes metrics and request performance.
-7.	Jenkins Pipeline → Automates packaging & deployment of Lambda.
-8.	Terraform → Manages infrastructure (API Gateway, Lambda, DynamoDB, IAM, CloudWatch, SNS).
-________________________________________
+1. Client sends requests to **API Gateway**.
+2. API Gateway invokes the **Lambda function**.
+3. Lambda reads/writes data in **DynamoDB**.
+4. **CloudWatch** stores logs and metrics.
+5. **SNS** sends alerts when errors exceed threshold.
+6. **Grafana** displays API metrics.
+7. **Jenkins pipeline** automates build and deployment.
+
 📂 Project Structure
 serverless-api/
-├── lambda/                # Lambda function code (Python)
-│   └── handler.py
-├── terraform/             # Terraform IaC files
-│   ├── main.tf
-│   ├── im.tf
-│   ├── s3.tf
-│   ├── apigateway.tf
-│   ├── dynamodb.tf
-│   ├── variables.tf
-│   ├── lambda.tf
-│   ├── outputs.tf
-│   └── monitoring.tf
-├── Jenkinsfile            # Jenkins pipeline for CI/CD
-└── README.md              # Project documentation
-________________________________________
-⚙️ Prerequisites
-•	AWS Account
-•	Terraform >= 1.5
-•	Jenkins (with AWS credentials configured)
-•	Python 3.x
-•	Grafana (self-hosted or AWS Managed)
-________________________________________
-🚀 Deployment
-1️⃣ Clone Repository
-git clone https://github.com/pavanambuskar/serverless-api.git
-cd serverless-api
-2️⃣ Terraform Setup
+│── lambda/ # Lambda function code
+│ └── handler.py
+│── terraform/ # Terraform IaC files
+│ ├── main.tf
+│ ├── lambda.tf
+│ ├── apigateway.tf
+│ ├── dynamodb.tf
+│ ├── monitoring.tf
+│ ├── variables.tf
+│ └── outputs.tf
+│── Jenkinsfile # CI/CD pipeline definition
+│── README.md # Project documentation
+
+⚙️ Setup & Deployment
+1️⃣ Prerequisites
+- AWS CLI installed and configured (`aws configure`)
+- Terraform installed (`terraform -v`)
+- Jenkins installed (for CI/CD)
+- Grafana (running on EC2 or Docker)
+
+---
+
+### 2️⃣ Deploy Infrastructure
+```bash
 cd terraform
 terraform init
 terraform plan
 terraform apply -auto-approve
-3️⃣ Deploy Lambda via Jenkins
-•	Jenkins pipeline reads the Jenkinsfile.
-•	Pipeline stages:
-1.	Checkout: Pull code from GitHub.
-2.	Build: Package Lambda code into a zip.
-3.	Deploy: Upload to S3 & update Lambda function.
-4️⃣ Setup Monitoring & Alerts
-•	CloudWatch Alarm → Triggers when error rate exceeds threshold.
-•	SNS → Sends notification to configured email.
-5️⃣ Grafana Dashboard
-•	Import API request metrics from CloudWatch.
-•	Customize visualization panels.
+
+This will create:
+•	Lambda function
+•	API Gateway REST API
+•	DynamoDB table
+•	CloudWatch alarm + SNS alert
+
+📊 Monitoring & CI/CD
+✅ CloudWatch + SNS Alerts
+•	Logs stored in CloudWatch.
+•	CloudWatch Alarm triggers when Lambda errors exceed threshold.
+•	SNS Topic sends email alerts for failures.
+✅ Jenkins Pipeline
+Stages:
+1.	Checkout code from GitHub
+2.	Build Lambda package
+3.	Run Tests
+4.	Deploy with Terraform
+✅ Grafana Dashboards
+•	Displays Lambda Invocations, Errors, and API Latency.
+•	Integrated with CloudWatch as data source.
 ________________________________________
-📊 Monitoring & Metrics
-•	Requests Count → Total API hits.
-•	Latency → Average API response time.
-•	Error Rate → 4xx/5xx error percentages.
-•	Alerts → Email alerts when errors cross threshold.
+📧 Alerts
+You will receive an email alert from SNS if Lambda errors cross the defined threshold.
 ________________________________________
-📧 Notifications
-•	Error alerts delivered via SNS → Email.
-•	Configurable in terraform/monitoring.tf.
+📜 Outputs
+After deployment, Terraform prints:
+•	API Invoke URL
+•	DynamoDB Table Name
+•	Lambda Function Name
+•	SNS Topic ARN
 ________________________________________
-✅ Cleanup
-To destroy resources:
-cd terraform
-terraform destroy -auto-approve
-________________________________________
-🛠️ Tech Stack
-•	AWS Lambda (Python)
+🛠️ Tools & Technologies
+•	AWS Lambda
 •	Amazon API Gateway
 •	Amazon DynamoDB
 •	Terraform
+•	AWS CloudWatch & SNS
 •	Jenkins
-•	CloudWatch + SNS
 •	Grafana
 
