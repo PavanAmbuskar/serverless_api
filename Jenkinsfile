@@ -40,7 +40,7 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                     dir('terraform') {
                         sh '''
-                        terraform init -input=false \
+                              terraform init -reconfigure -input=false \
                             -backend-config="bucket=${TF_BACKEND_BUCKET}" \
                             -backend-config="key=${TF_BACKEND_KEY}" \
                             -backend-config="region=${AWS_DEFAULT_REGION}" \
@@ -57,7 +57,7 @@ pipeline {
                     dir('terraform') {
                         script {
                             if (params.ACTION == 'apply') {
-                                sh 'echo "run successfully"'
+                               sh 'terraform plan -input=false -out=tfplan'
                             } else if (params.ACTION == 'destroy') {
                                 sh 'terraform destroy -auto-approve -input=false'
                             }
@@ -77,4 +77,5 @@ pipeline {
         }
     }
 }
+
 
