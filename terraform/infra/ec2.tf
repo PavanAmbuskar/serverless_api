@@ -79,11 +79,15 @@ resource "aws_instance" "devops_ec2" {
               systemctl enable jenkins
               systemctl start jenkins
 
+              # Download Grafana .deb
+              wget https://dl.grafana.com/oss/release/grafana_10.4.2_amd64.deb -O grafana.deb
+
               # Install Grafana
-              wget -q https://dl.grafana.com/oss/release/grafana_10.4.2_amd64.deb -O grafana.deb
-              dpkg -i grafana.deb
-              systemctl enable grafana-server
-              systemctl start grafana-server
+              sudo dpkg -i grafana.deb || sudo apt-get install -f -y
+
+              # Enable & start Grafana
+              sudo systemctl enable grafana-server
+              sudo systemctl start grafana-server
               EOF
 
   tags = {
